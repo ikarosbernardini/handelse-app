@@ -2,6 +2,8 @@
 
 En webbapplikation byggd i Flask som hämtar aktuella händelser från polisens RSS-flöde, geokodar adresser och visar dem på en interaktiv karta med Leaflet. Projektet började som en löneprognos-app men omstrukturerades till att fokusera på polishändelser.
 
+OBS: Detta är ett personligt projekt, ej affilierat med Polismyndigheten.
+
 
 ***Instruktioner***
 
@@ -16,21 +18,21 @@ Skapa sedan en virtuell miljö och aktivera den:
 
 python3 -m venv venv 
 
-source venv/bin/activate # Linux/Mac venv\Scripts\activate # Windows
+source venv/bin/activate # Linux/Mac 
+
+python -m venv venv 
+
+venv\Scripts\activate # Windows
 
 
-Installera alla beroenden från `requirements.txt`:
+Installera alla moduller från `requirements.txt`:
 
 pip install -r requirements.txt
 
+kör sedan skriptet genom att skriva :
 
-
-Gå därefter in i `application`-mappen och starta appen:
-
-cd application 
-
-flask --app app run
-
+python3 run.py # Linux/Mac
+python run.py # Windows
 
 Öppna sedan i webbläsaren:
 
@@ -57,10 +59,10 @@ http://127.0.0.1:5000
 
 För renskrivning och små förbättringsförslag etc har jag använt följande AI-modeller :  
 - Copilot  
-- ChatGPT  
+- Claude.ai
 - Ollamas - qwen3-coder:480b-cloud, qwen3-coder:30b  
 
-Jag har även använt oss av Google Maps för att få exakta koordinater på latitud och longitud.
+Jag har även använt mig av Google Maps för att få exakta koordinater på latitud och longitud.
 
 
 

@@ -13,7 +13,7 @@ def map_view():
     """ Visar en karta med händelser."""
     data_url = "https://polisen.se/aktuellt/rss/stockholms-lan/handelser-rss---stockholms-lan/"
     df = func.xml_url_to_dataframe(data_url, xpath="//item") # här hämtar jag datan från RSS-flödet och gör om den till en DataFrame
-    results = func.add_city_coordinates(df, title_column="title", limit=10) # lägger till latitud och longitud baserat på ortnamn i titelkolumnen
+    results = func.add_city_coordinates(df, title_column="title", limit=25) # lägger till latitud och longitud baserat på ortnamn i titelkolumnen
     
     events = df.to_dict(orient="records") # här gör jag om DataFrame till en lista av ordböcker
     

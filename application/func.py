@@ -21,7 +21,7 @@ with open(DATA_FILE, "r", encoding="utf-8") as f: # öppnar JSON-filen
     cities_df = pd.DataFrame(cities)  # gör om till DataFrame
     cities_df.rename(columns={"lat": "latitude", "lng": "longitude"}, inplace=True)   # byter namn på kolumner för att undvika krockar med geokodningsfunktionen
 
-def add_city_coordinates(df, title_column="title", limit=10): 
+def add_city_coordinates(df, title_column="title", limit=25): 
     """
     Lägger till latitud och longitud för svenska städer i en DataFrame baserat på en titelkolumn.
     """
@@ -31,7 +31,7 @@ def add_city_coordinates(df, title_column="title", limit=10):
     
     
     areas = [] # skapa en tom lista för områden
-    for area in range(0, 10): # loopa genom de första 10 raderna i listan
+    for area in range(0, 25): # loopa genom de första 25 raderna i listan
         areas.append(df.head(limit).to_dict()["title"][area].split(", ")[-1]) 
         # lägger till ortnamnet i listan genom att splitta strängen vid ", " och ta den sista delen
     city_lookup = {c["city"]: {"lat": c["lat"], "lng": c["lng"]} for c in cities} # skapar en uppslagningstabell för städer och deras koordinater
