@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aktuella Polishändelser</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #e6f0ff;
+            --accent-color: #ff6600;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .header-card {
+            background: linear-gradient(135deg, var(--primary-color), #003366);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .table th {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 102, 204, 0.05);
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0052a3;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+        
+        .search-form {
+            max-width: 300px;
+        }
+        
+        .search-btn {
+            background-color: var(--accent-color);
+            border: none;
+        }
+        
+        .search-btn:hover {
+            background-color: #e65c00;
+        }
+        
+        .event-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .event-link:hover {
+            text-decoration: underline;
+        }
+        
+        .popup-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .popup-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header Section -->
+        <div class="header-card p-4 mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-9">
+                    <h1 class="mb-2 d-flex align-items-center">
+                         <img src="{{ url_for('static', filename='images/') }}" 
+                            alt="Polisen logotyp" 
+                            style="height:48px; width:auto; margin-right:10px; vertical-align:middle;">
+                         Aktuella Polishändelser
+                    </h1>
+                    <p class="mb-0">Senaste händelserna från Polisen i realtid</p>
+                </div>
+                <div class="col-md-3 text-end">
+                    <form class="search-form d-flex justify-content-end" method="GET" action="/search">
+                        <input class="form-control me-2" type="search" placeholder="Sök händelser..." aria-label="Search" name="q">
+                        <button class="btn search-btn" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-map-marked-alt me-2"></i>Händelser på karta
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <!-- Events Table -->
+        <div class="table-container">
+            <h2 class="mb-4">
+                <i class="fas fa-list me-2"></i>Senaste händelser
+            </h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-heading me-1"></i> Titel</th>
+                            <th><i class="fas fa-align-left me-1"></i> Beskrivning</th>
+                            <th><i class="fas fa-calendar me-1"></i> Datum</th>
+                            <th><i class="fas fa-link me-1"></i> Länk</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ev in events %} 
+                        <tr>
+                            <td><strong>{{ ev.title }}</strong></td>
+                            <td>{{ ev.description[:100] }}{% if ev.description|length > 100 %}...{% endif %}</td>
+                            <td>{{ ev.pubDate if ev.pubDate else "" }}</td>
+                            <td>
+                                <a href="{{ ev.link }}" target="_blank" class="event-link">
+                                    <i class="fas fa-external-link-alt me-1"></i>Läs mer
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="mb-0">
+                <i class="fas fa-sync-alt me-1"></i>Information uppdateras kontinuerligt
+            </p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize map with smaller size
+        var map = L.map('map').setView([59.3293, 18.0686], 10);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        
+        // User location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var userLat = position.coords.latitude;
+                var userLon = position.coords.longitude;
+                map.setView([userLat, userLon], 12);
+                
+                L.marker([userLat, userLon])
+                  .addTo(map)
+                  .bindPopup("<b>Din plats</b><br>Du är här!")
+                  .openPopup();
+            });
+        }
+
+        // Add event markers with improved popup content
+        var events = {{ events|tojson }};
+        events.forEach(function(ev) {
+            if (ev.lat && ev.lng) {
+                var marker = L.marker([ev.lat, ev.lng])
+                    .addTo(map)
+                    .bindPopup(
+                        "<b>" + ev.title + "</b><br>" + 
+                        ev.description.substring(0, 100) + 
+                        (ev.description.length > 100 ? "..." : "") + 
+                        "<br><span class='me-2'>Händelse</span>" +
+                        "<a href='" + ev.link + "' target='_blank' class='popup-link'>Läs mer</a>"
+                    );
+            }
+        });
+
+        // Add additional markers with "Händelse | Läs mer" links
+        var results = {{ results|tojson }};
+        results.forEach(function(pin) {
+            if (pin.lat && pin.lng) {
+                var popupContent = "<b>" + pin.city + "</b><br>";
+
+                // Lägg till alla händelser för orten
+                pin.events.forEach(function(ev) {
+                    var parts = ev.title.split(", ");
+                    var beforeOrt = parts.slice(0, -1).join(", "); // allt utom orten
+                    popupContent += beforeOrt + 
+                        " <a href='" + ev.link + "' target='_blank' class='popup-link'>Läs mer</a><br>";
+                });
+
+                L.marker([pin.lat, pin.lng])
+                    .addTo(map)
+                    .bindPopup(popupContent);
+            }
+        });
+    </script>
+</body>
+</html>
