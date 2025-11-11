@@ -64,9 +64,15 @@ För renskrivning och små förbättringsförslag etc har jag använt följande 
 
 Jag har även använt mig av Google Maps för att få exakta koordinater på latitud och longitud.
 
+***Framtidsplaner för projektet***
 
+- Områdesbaserad sökning: Möjliggöra filtrering av händelser baserat på specifika områden såsom Södermalm, Norrmalm eller Odenplan, istället för enbart ort. Obs: Detta är för närvarande inte möjligt då det externa API:et inte specificerar område i varje händelse.
 
+- Notisfunktion: Implementera notifieringar via e-post eller liknande kanaler för att hålla användaren uppdaterad i realtid.
 
+- Användarsystem: Skapa ett inloggningssystem som möjliggör fler personliga funktioner och inställningar.
+
+- Personlig bevakning: Ge användaren möjlighet att välja och följa specifika områden för att få skräddarsydd information.
 
 
 
